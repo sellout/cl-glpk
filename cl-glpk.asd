@@ -35,4 +35,6 @@
   :serial t
   :depends-on (:cffi :iterate)
   :components ((:file "packages")
-               (:file "glpk-ffi")))
+               (:file "glpk-ffi")
+	       (:file "lisp-api")
+	       (:file "load")))

@@ -26,7 +26,13 @@
 
 ;;; This file corresponds to EXAMPLES/SAMPLE.C in the GLPK distribution.
 
-;;; This problem is described in Section 1.3 of the GLPK manual.
+;;; The linear problem, which is solved by the functions in this file,
+;;; is described in Section 1.3 of the GLPK manual.
+
+;;; Currently there are two implementations:
+
+;;; sample              -- uses the low-level FFI bindings directly
+;;; sample-medium-level -- uses a lispier interface (see lisp-api.lisp)
 
 (in-package #:cl-glpk)
 
@@ -74,3 +80,30 @@
 	    (%get-col-prim lp 3))
 
     (%delete-prob lp)))
+
+(defun sample-medium-level ()
+  "Implemented using the Lisp API."
+  (let ((lp (make-instance 'linear-problem
+			   :rows '(("p" :upper-bound 0 100)
+				   ("q" :upper-bound 0 600)
+				   ("r" :upper-bound 0 300))
+			   :columns '(("x1" :lower-bound 0 0)
+				      ("x2" :lower-bound 0 0)
+				      ("x3" :lower-bound 0 0))
+			   :constraints '((1 1 1.0d0)
+					  (1 2 1.0d0)
+					  (1 3 1.0d0)
+					  (2 1 10.0d0)
+					  (2 2 4.0d0)
+					  (2 3 5.0d0)
+					  (3 1 2.0d0)
+					  (3 2 2.0d0)
+					  (3 3 6.0d0))
+			   :objective '(10 6 4)
+			   :direction :max)))
+    (simplex lp)
+    (format t "z = ~a, x1 = ~a, x2 = ~a, x3 = ~a~%"
+	    (objective-value lp)
+	    (column-primal-value lp 1)
+	    (column-primal-value lp 2)
+	    (column-primal-value lp 3))))
