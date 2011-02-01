@@ -26,7 +26,7 @@
 
 (defpackage #:cl-glpk
   (:nicknames #:glpk)
-  (:use #:cl #:cffi #:iterate)
+  (:use #:cl #:cffi #:trivial-garbage #:iterate)
   (:export #:load-glpk
 	   #:linear-problem
 	   #:rows
