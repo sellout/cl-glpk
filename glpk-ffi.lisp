@@ -26,6 +26,11 @@
 
 (in-package #:cl-glpk)
 
+(define-foreign-library libglpk
+  (t (:default "libglpk")))
+
+(use-foreign-library libglpk)
+
 (defcenum problem-class
   (:lp 100)      ;; linear programming
   (:mip 101))    ;; mixed integer programming

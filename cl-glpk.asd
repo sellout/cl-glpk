@@ -37,5 +37,4 @@
   :components ((:file "packages")
                (:file "glpk-ffi")
 	       (:file "lisp-api")
-               (:file "high-level")
-	       (:file "load")))
+               (:file "high-level")))
