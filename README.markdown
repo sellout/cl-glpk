@@ -20,7 +20,12 @@ the GLPK manual. For the (partial) high-level API, see `examples/sample.lisp`. T
                   (<= (+ (* 2 x1) (* 2 x2) (* 6 x3)) 300))
      :bounds ((>= x3 10)))
 
-then you can solve the program and get results with
+Any of the :BOUNDS constraints could be in the :SUBJECT-TO list instead, but I'm
+not yet sure what impact that will have on performance, so until I can identify
+(and if necessary, prevent) that, I pull my variable bounds into a separate
+parameter.
+
+Then you can solve the program and get results with
 
     (simplex *)
     (format t "z = ~a, x1 = ~a, x2 = ~a, x3 = ~a~%"
