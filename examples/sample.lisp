@@ -112,12 +112,12 @@
   "Implemented using the MAKE-LINEAR-PROGRAM macro."
   (let ((lp (make-linear-program
              :maximize (+ (* 10 x1) (* 6 x2) (* 4 x3))
-             :subject-to (((+ x1 x2 x3) :upper 100)
-                          ((+ (* 10 x1) (* 4 x2) (* 5 x3)) :upper 600)
-                          ((+ (* 2 x1) (* 2 x2) (* 6 x3)) :upper 300))
-             :bounds ((x1 :lower 0)
-                      (x2 :lower 0)
-                      (x3 :lower 0)))))
+             :subject-to ((<= (+ x1 x2 x3) 100)
+                          (<= (+ (* 10 x1) (* 4 x2) (* 5 x3)) 600)
+                          (<= (+ (* 2 x1) (* 2 x2) (* 6 x3)) 300))
+             :bounds ((>= x1 0)
+                      (>= x2 0)
+                      (>= x3 0)))))
     (simplex lp)
     (format t "z = ~a, x1 = ~a, x2 = ~a, x3 = ~a~%"
 	    (objective-value lp)

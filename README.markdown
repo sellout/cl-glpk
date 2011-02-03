@@ -2,7 +2,8 @@
 
 ## Portability
 
-CL-GLPK should work on any Lisp/OS/machine combination, as long as CFFI, Trivial-Garbage, Iterate, and GLPK work.
+CL-GLPK should work on any Lisp/OS/machine combination, as long as CFFI,
+Trivial-Garbage, Iterate, and GLPK work.
 
 CL-GLPK has been tested on SBCL 1.0.2 / Mac OS X (10.4) / PPC and CCL trunk /
 Mac OS X (10.6) / x86-64.
@@ -14,10 +15,10 @@ the GLPK manual. For the (partial) high-level API, see `examples/sample.lisp`. T
 
     (make-linear-program
      :maximize (+ (* (- 12 2) x1) (* 6 x2) (* 4 x3))
-     :subject-to (((+ x1 x2 x3) :upper 100)
-                  ((+ (* (+ 2 2) x2) (* 10 x1) (* 5 x3)) :upper (+ 200 400))
-                  ((+ (* 2 x1) (* 2 x2) (* 6 x3)) :upper 300))
-     :bounds ((x3 :lower 10)))
+     :subject-to ((<= (+ x1 x2 x3) 100)
+                  (<= (+ (* (+ 2 2) x2) (* 10 x1) (* 5 x3)) (+ 200 400))
+                  (<= (+ (* 2 x1) (* 2 x2) (* 6 x3)) 300))
+     :bounds ((>= x3 10)))
 
 then you can solve the program and get results with
 
