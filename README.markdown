@@ -10,7 +10,26 @@ Mac OS X (10.6) / x86-64.
 ## Quick Introduction
 
 Load the ASDF system. The low-level FFI bindings are implicitly documented by
-the GLPK manual. For the (partial) high-level API, see EXAMPLES/SAMPLE.LISP.
+the GLPK manual. For the (partial) high-level API, see `examples/sample.lisp`. The highest-level API allows you to express linear programs like:
+
+    (make-linear-program
+     :maximize (+ (* (- 12 2) x1) (* 6 x2) (* 4 x3))
+     :subject-to (((+ x1 x2 x3) :upper 100)
+                  ((+ (* (+ 2 2) x2) (* 10 x1) (* 5 x3)) :upper (+ 200 400))
+                  ((+ (* 2 x1) (* 2 x2) (* 6 x3)) :upper 300))
+     :bounds ((x3 :lower 10)))
+
+then you can solve the program and get results with
+
+    (simplex *)
+    (format t "z = ~a, x1 = ~a, x2 = ~a, x3 = ~a~%"
+            (objective-value **)
+            (column-primal-value ** 1)
+            (column-primal-value ** 2)
+            (column-primal-value ** 3))
+
+There are still a lot of improvements to build into this high-level API before
+it's really complete.
 
 ## License
 
@@ -22,12 +41,12 @@ BSD sans advertising clause (see file COPYING)
 
 ### Improve error handling
 
-Currently error handling is done by either (error ...) or (assert ...).
+Currently error handling is done by either `(ERROR ...)` or `(ASSERT ...)`.
 
 ### Extend High Level API
 
-This is partially completed in MAKE-LINEAR-PROGRAM.
+#### Make up a DSL (similar to GLPK's MPS files, but lispier)
 
-### Make up a DSL (similar to GLPK's MPS files, but lispier)
+This is partially completed in `MAKE-LINEAR-PROGRAM`.
 
 ### Complete FFI bindings
