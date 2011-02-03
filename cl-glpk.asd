@@ -26,7 +26,7 @@
 
 (asdf:defsystem :cl-glpk
   :author "Kai Kaminski <kai.kaminski@gmx.de>"
-  :maintainer "Kai Kaminski <kai.kaminski@gmx.de>"
+  :maintainer "Greg Pfeil <greg@technomadic.org>"
   :license "BSD sans advertising (see file COPYING for details)"
   :name "cl-glpk"
   :description "FFI Bindings for GLPK"
@@ -37,4 +37,5 @@
   :components ((:file "packages")
                (:file "glpk-ffi")
 	       (:file "lisp-api")
+               (:file "high-level")
 	       (:file "load")))
