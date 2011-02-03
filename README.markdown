@@ -1,5 +1,7 @@
 # cl-glpk
 
+A Common Lisp library for solving linear programs.
+
 ## Portability
 
 CL-GLPK should work on any Lisp/OS/machine combination, as long as CFFI,
