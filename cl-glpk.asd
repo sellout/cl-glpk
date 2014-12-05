@@ -33,8 +33,10 @@
   :long-description "FFI Bindings for the GNU Linear Programming Kit"
   :version "0.1"
   :serial t
-  :depends-on (:cffi :trivial-garbage :iterate)
+  :depends-on (:cl-autowrap :cffi :trivial-garbage :iterate)
   :components ((:file "packages")
                (:file "glpk-ffi")
 	       (:file "lisp-api")
-               (:file "high-level")))
+               (:file "high-level")
+               (:module :autospec
+                        :components ((:static-file "glpk.h")))))

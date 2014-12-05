@@ -26,6 +26,11 @@
 
 (in-package :cl-glpk)
 
+(cffi:define-foreign-library libglpk
+  (t (:default "libglpk")))
+
+(cffi:use-foreign-library libglpk)
+
 ;;; class definition and basic amenities (print-object etc)
 (defclass linear-problem ()
   ((_problem :reader _problem)))
@@ -38,18 +43,18 @@
 
 (defmethod initialize-instance :after
     ((lp linear-problem) &key name direction rows columns constraints objective &allow-other-keys)
-  (let ((_problem  (%create-prob)))    
+  (let ((_problem  (glp-create-prob)))
     (setf (slot-value lp '_problem) _problem)
-    
+
     (when direction
       (setf (direction lp) direction))
-    
+
     (when name
       (setf (name lp) name))
-    
+
     (when columns
       (setf (columns lp) columns))
-    
+
     (when rows
       (setf (rows lp) rows))
 
@@ -58,23 +63,23 @@
 
     (when objective
       (setf (objective lp) objective))
-    
+
     (finalize lp (lambda ()
-		   (%delete-prob _problem)))))
+		   (glp-delete-prob _problem)))))
 
 ;;; Accessors
 (defmethod name ((lp linear-problem))
-  (%get-prob-name (_problem lp)))
+  (glp-get-prob-name (_problem lp)))
 
 (defmethod (setf name) (name (lp linear-problem))
-  (%set-prob-name (_problem lp) name)
+  (glp-set-prob-name (_problem lp) name)
   name)
 
 (defmethod direction ((lp linear-problem))
-  (%get-obj-dir (_problem lp)))
+  (glp-get-obj-dir (_problem lp)))
 
 (defmethod (setf direction) (direction (lp linear-problem))
-  (%set-obj-dir (_problem lp) direction)
+  (glp-set-obj-dir (_problem lp) direction)
   direction)
 
 (defmethod (setf columns) (columns (lp linear-problem))
@@ -83,82 +88,84 @@
 ;all the specified columns. Otherwise it asserts that
 ;(= (LENGTH COLUMNS) (NUMBER-OF-COLUMNS LP)) and sets names and bounds of the columns."
   (let* ((_lp (_problem lp))
-	 (num-cols (%get-num-cols _lp))
+	 (num-cols (glp-get-num-cols _lp))
 	 (new-num-cols (length columns)))
     (if (= 0 num-cols)
-	(%add-cols _lp new-num-cols)
+	(glp-add-cols _lp new-num-cols)
 	(assert (= num-cols new-num-cols)))
-    
+
     (iter (for column in columns)
 	  (for k from 1)
 	  (destructuring-bind (name type lower-bound upper-bound)
 	      column
-	    (%set-col-name _lp k name)
-	    (%set-col-bnds _lp k type
+	    (glp-set-col-name _lp k name)
+	    (glp-set-col-bnds _lp k type
 			   (coerce lower-bound 'double-float)
 			   (coerce upper-bound 'double-float))))
     columns))
 
 (defmethod (setf rows) (rows (lp linear-problem))
   (let* ((_lp (_problem lp))
-	 (num-rows (%get-num-rows _lp))
+	 (num-rows (glp-get-num-rows _lp))
 	 (new-num-rows (length rows)))
     (if (= 0 num-rows)
-	(%add-rows _lp new-num-rows)
+	(glp-add-rows _lp new-num-rows)
 	(assert (= num-rows new-num-rows)))
 
     (iter (for row in rows)
 	  (for k from 1)
 	  (destructuring-bind (name type lower-bound upper-bound)
 	      row
-	    (%set-row-name _lp k name)
-	    (%set-row-bnds _lp k type
-			   (coerce lower-bound 'double-float)
-			   (coerce upper-bound 'double-float))))
+	    (glp-set-row-name _lp k name)
+	    (glp-set-row-bnds _lp k type
+                              (coerce lower-bound 'double-float)
+                              (coerce upper-bound 'double-float))))
     rows))
 
 (defmethod number-of-rows ((lp linear-problem))
-  (%get-num-rows (_problem lp)))
+  (glp-get-num-rows (_problem lp)))
 
 (defmethod number-of-columns ((lp linear-problem))
-  (%get-num-cols (_problem lp)))
+  (glp-get-num-cols (_problem lp)))
 
 (defmethod (setf constraints) (constraints (lp linear-problem))
-  (let ((is (foreign-alloc :int :count (1+ (length constraints))))
-	(js (foreign-alloc :int :count (1+ (length constraints))))
-	(coefs (foreign-alloc :double :count (1+ (length constraints)))))
+  (autowrap:with-many-alloc ((is :int (1+ (length constraints)))
+                             (js :int (1+ (length constraints)))
+                             (coefs :double (1+ (length constraints))))
     (iter (for (i j coef) in constraints)
 	  (for k from 1)
 	  (assert (<= i (number-of-rows lp)))
 	  (assert (<= j (number-of-columns lp)))
 	  (assert (/= coef 0d0))
-	  (setf (mem-aref is :int k) i)
-	  (setf (mem-aref js :int k) j)
-	  (setf (mem-aref coefs :double k) (coerce coef 'double-float)))
-    (%load-matrix (_problem lp) (length constraints) is js coefs)
+	  (setf (autowrap:c-aref is k :int) i)
+	  (setf (autowrap:c-aref js k :int) j)
+	  (setf (autowrap:c-aref coefs k :double) (coerce coef 'double-float)))
+    (glp-load-matrix (_problem lp) (length constraints) is js coefs)
     constraints))
 
 (defmethod (setf objective) (objective (lp linear-problem))
   (assert (<= (length objective) (number-of-columns lp)))
   (iter (for coef in objective)
 	(for k from 1)
-	(%set-obj-coef (_problem lp) k (coerce coef 'double-float)))
+	(glp-set-obj-coef (_problem lp) k (coerce coef 'double-float)))
   objective)
 
 
 ;;; Solvers
 
 (defmethod simplex ((lp linear-problem))
-  (%simplex (_problem lp)))
+  (autowrap:with-alloc (parm 'glp-smcp)
+    (glp-init-smcp parm)
+    (glp-simplex (_problem lp) parm)))
 
 
 ;;; Query functions
 
 (defmethod objective-value ((lp linear-problem))
-  (%get-obj-val (_problem lp)))
+  (glp-get-obj-val (_problem lp)))
 
 (defmethod column-primal-value ((lp linear-problem) column)
-  (%get-col-prim (_problem lp) column))
+  (glp-get-col-prim (_problem lp) column))
 
 
 ;;; Utility functions

@@ -5,10 +5,9 @@ A Common Lisp library for solving linear programs.
 ## Portability
 
 CL-GLPK should work on any Lisp/OS/machine combination, as long as CFFI,
-Trivial-Garbage, Iterate, and GLPK work.
+Trivial-Garbage, Iterate, Autowrap, and GLPK work.
 
-CL-GLPK has been tested on SBCL 1.0.2 / Mac OS X (10.4) / PPC and CCL trunk /
-Mac OS X (10.6) / x86-64.
+CL-GLPK has been tested on SBCL 1.2.5 Linux x86-64 with GLPK 4.55.
 
 ## Quick Introduction
 
@@ -39,6 +38,28 @@ Then you can solve the program and get results with
 There are still a lot of improvements to build into this high-level API before
 it's really complete.
 
+## A note about this fork
+
+This fork of the CL-GLPK project uses cl-autowrap instead of the
+manually-written CFFI bindings. Thus the low-level interface has
+changed. From what I see these are the notable changes:
+
+- Use of glp- prefix instead of % for low-level functions.
+
+- Passing +glp-constant+ rather than :constant. Unfortunately GLPK
+doesn't use enums in its function prototypes. The old Lisp names also
+don't directly translate to GPLK's names, so :lower-bound may end up
+as +glp-lo+.
+
+- Autowrap's allocation/array access/etc. need to be used, rather than
+CFFI's.
+
+- GLPK's own interface has changed. For example, glp-simplex now takes
+another argument.
+
+Also, I have fixed a small memory leak when setting a problem's
+constraints.
+
 ## License
 
 BSD sans advertising clause (see file COPYING)
@@ -56,5 +77,3 @@ Currently error handling is done by either `(ERROR ...)` or `(ASSERT ...)`.
 #### Make up a DSL (similar to GLPK's MPS files, but lispier)
 
 This is partially completed in `MAKE-LINEAR-PROGRAM`.
-
-### Complete FFI bindings
