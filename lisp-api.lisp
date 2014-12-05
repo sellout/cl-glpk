@@ -167,6 +167,14 @@
 (defmethod column-primal-value ((lp linear-problem) column)
   (glp-get-col-prim (_problem lp) column))
 
+(defmethod column-dual-value ((lp linear-problem) column)
+  (glp-get-col-dual (_problem lp) column))
+
+(defmethod row-primal-value ((lp linear-problem) row)
+  (glp-get-row-prim (_problem lp) row))
+
+(defmethod row-dual-value ((lp linear-problem) row)
+  (glp-get-row-dual (_problem lp) row))
 
 ;;; Utility functions
 (defun array/list->constraints (constraints)

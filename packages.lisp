@@ -42,4 +42,7 @@
 	   #:simplex
 	   #:objective-value
 	   #:column-primal-value
+           #:column-dual-value
+           #:row-primal-value
+           #:row-dual-value
            #:make-linear-program))
