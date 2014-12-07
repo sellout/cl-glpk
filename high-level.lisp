@@ -1,14 +1,14 @@
 (in-package :cl-glpk)
 
 ;;; This high-level interface provides a macro that can be used as follows
-;;; 
+;;;
 ;;;     (make-linear-program
 ;;;      :maximize (+ (* (- 12 2) x1) (* 6 x2) (* 4 x3))
 ;;;      :subject-to ((<= (+ x1 x2 x3) 100)
 ;;;                   (<= (+ (* (+ 2 2) x2) (* 10 x1) (* 5 x3)) (+ 200 400))
 ;;;                   (<= (+ (* 2 x1) (* 2 x2) (* 6 x3)) 300))
 ;;;      :bounds ((>= x3 10)))
-;;; 
+;;;
 ;;; Features:
 ;;; – coefficients & bounds can be arbitrary lisp forms
 ;;; - terms in constraints don't have to be in same order as in the objective
@@ -20,7 +20,7 @@
 ;;; - instead of :LOWER and :UPPER, use (<= lb (+ (* 4 x) ...) ub) [if there is
 ;;;   only one bound, you must have the variable before the bound. EG,
 ;;;   (>= x lb), not (<= lb x)?]
-;;; 
+;;;
 ;;; TODO:
 ;;; - integrate bounds with constraints (either discover that it's just as fast
 ;;;   to combine them, or add code to separate out bounds before expansion)
@@ -39,7 +39,7 @@
 (defun get-specified-bounds (lower upper)
   (if lower
       (if upper
-          (if (eq upper lower) :fixed :double-bound)
+          (if (eql upper lower) :fixed :double-bounded)
           :lower-bound)
       (if upper
           :upper-bound

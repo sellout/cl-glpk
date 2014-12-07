@@ -24,9 +24,12 @@
 ;;; NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+(defpackage #:cl-glpk-ffi
+  (:use))
+
 (defpackage #:cl-glpk
   (:nicknames #:glpk)
-  (:use #:cl #:cffi #:trivial-garbage #:iterate)
+  (:use #:cl #:cl-glpk-ffi #:trivial-garbage #:iterate)
   (:export #:linear-problem
 	   #:rows
 	   #:number-of-rows
@@ -39,4 +42,7 @@
 	   #:simplex
 	   #:objective-value
 	   #:column-primal-value
+           #:column-dual-value
+           #:row-primal-value
+           #:row-dual-value
            #:make-linear-program))
