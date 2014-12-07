@@ -39,7 +39,7 @@
 (defun get-specified-bounds (lower upper)
   (if lower
       (if upper
-          (if (eq upper lower) :fixed :double-bounded)
+          (if (eql upper lower) :fixed :double-bounded)
           :lower-bound)
       (if upper
           :upper-bound
