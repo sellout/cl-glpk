@@ -87,12 +87,12 @@
 (defun sample-medium-level ()
   "Implemented using the Lisp API."
   (let ((lp (make-instance 'linear-problem
-			   :rows `(("p" ,+glp-up+ 0 100)
-				   ("q" ,+glp-up+ 0 600)
-				   ("r" ,+glp-up+ 0 300))
-			   :columns `(("x1" ,+glp-lo+ 0 0)
-				      ("x2" ,+glp-lo+ 0 0)
-				      ("x3" ,+glp-lo+ 0 0))
+			   :rows '(("p" :upper-bound 0 100)
+				   ("q" :upper-bound 0 600)
+				   ("r" :upper-bound 0 300))
+			   :columns '(("x1" :lower-bound 0 0)
+				      ("x2" :lower-bound 0 0)
+				      ("x3" :lower-bound 0 0))
 			   :constraints '((1 1 1.0d0)
 					  (1 2 1.0d0)
 					  (1 3 1.0d0)
@@ -103,7 +103,7 @@
 					  (3 2 2.0d0)
 					  (3 3 6.0d0))
 			   :objective '(10 6 4)
-			   :direction +glp-max+)))
+			   :direction :max)))
     (simplex lp)
     (format t "z = ~a, x1 = ~a, x2 = ~a, x3 = ~a~%"
 	    (objective-value lp)

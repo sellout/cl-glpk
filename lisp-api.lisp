@@ -75,12 +75,28 @@
   (glp-set-prob-name (_problem lp) name)
   name)
 
+(autowrap:define-enum-from-constants (direction "GLP-")
+  +glp-min+
+  +glp-max+)
+
 (defmethod direction ((lp linear-problem))
-  (glp-get-obj-dir (_problem lp)))
+  (autowrap:enum-key '(:enum (direction))
+                     (glp-get-obj-dir (_problem lp))))
 
 (defmethod (setf direction) (direction (lp linear-problem))
-  (glp-set-obj-dir (_problem lp) direction)
+  (glp-set-obj-dir (_problem lp)
+                   (autowrap:enum-value '(:enum (direction))
+                                        direction))
   direction)
+
+(autowrap:define-foreign-enum 'var-type 0
+  (list (cons :free +glp-fr+)
+        (cons :lower-bound +glp-lo+)
+        (cons :upper-bound +glp-up+)
+        (cons :double-bounded +glp-db+)
+        (cons :fixed +glp-fx+)))
+
+(autowrap:define-foreign-alias 'var-type '(:enum (var-type)))
 
 (defmethod (setf columns) (columns (lp linear-problem))
 ; This docstring is commented out, because Emacs/Slime chokes on it otherwise.
@@ -99,7 +115,8 @@
 	  (destructuring-bind (name type lower-bound upper-bound)
 	      column
 	    (glp-set-col-name _lp k name)
-	    (glp-set-col-bnds _lp k type
+	    (glp-set-col-bnds _lp k
+                           (autowrap:enum-value '(:enum (var-type)) type)
 			   (coerce lower-bound 'double-float)
 			   (coerce upper-bound 'double-float))))
     columns))
@@ -117,7 +134,8 @@
 	  (destructuring-bind (name type lower-bound upper-bound)
 	      row
 	    (glp-set-row-name _lp k name)
-	    (glp-set-row-bnds _lp k type
+	    (glp-set-row-bnds _lp k
+                              (autowrap:enum-value '(:enum (var-type)) type)
                               (coerce lower-bound 'double-float)
                               (coerce upper-bound 'double-float))))
     rows))
@@ -153,10 +171,35 @@
 
 ;;; Solvers
 
+(autowrap:define-foreign-enum 'return-code 0
+  (list (cons :ok 0)
+        (cons :invalid-basis +glp-ebadb+)
+        (cons :singular-matrix +glp-esing+)
+        (cons :ill-conditioned-matrix +glp-econd+)
+        (cons :invalid-bounds +glp-ebound+)
+        (cons :solver-failed +glp-efail+)
+        (cons :objective-lower-limit-reached +glp-eobjll+)
+        (cons :objective-upper-limit-reached +glp-eobjul+)
+        (cons :iteration-limit-exceeded +glp-eitlim+)
+        (cons :time-limit-exceeded +glp-etmlim+)
+        (cons :no-primal-feasible-solution +glp-enopfs+)
+        (cons :no-dual-feasible-solution +glp-enodfs+)
+        (cons :root-lp-optimum-not-provided +glp-eroot+)
+        (cons :search-terminated-by-application +glp-estop+)
+        (cons :relative-mip-gap-tolerance-reached +glp-emipgap+)
+        (cons :no-primal/dual-feasible-solution +glp-enofeas+)
+        (cons :no-convergence +glp-enocvg+)
+        (cons :numerical-instability +glp-einstab+)
+        (cons :invalid-data +glp-edata+)
+        (cons :result-out-of-range +glp-erange+)))
+
+(autowrap:define-foreign-alias 'return-code '(:enum (return-code)))
+
 (defmethod simplex ((lp linear-problem))
   (autowrap:with-alloc (parm 'glp-smcp)
     (glp-init-smcp parm)
-    (glp-simplex (_problem lp) parm)))
+    (autowrap:enum-key '(:enum (return-code))
+                       (glp-simplex (_problem lp) parm))))
 
 
 ;;; Query functions

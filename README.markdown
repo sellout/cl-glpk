@@ -44,21 +44,16 @@ This fork of the CL-GLPK project uses cl-autowrap instead of the
 manually-written CFFI bindings. Thus the low-level interface has
 changed. From what I see these are the notable changes:
 
-- Use of glp- prefix instead of % for low-level functions.
+- Use of glp- prefix instead of % for low-level functions, and
++glp-constant+ instead of :constant.
 
-- Passing +glp-constant+ rather than :constant. Unfortunately GLPK
-doesn't use enums in its function prototypes. The old Lisp names also
-don't directly translate to GPLK's names, so :lower-bound may end up
-as +glp-lo+.
+- The Lisp names for the simplex function's return value have changed.
 
 - Autowrap's allocation/array access/etc. need to be used, rather than
 CFFI's.
 
 - GLPK's own interface has changed. For example, glp-simplex now takes
 another argument.
-
-Also, I have fixed a small memory leak when setting a problem's
-constraints.
 
 ## License
 

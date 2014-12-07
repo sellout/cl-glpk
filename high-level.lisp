@@ -39,11 +39,11 @@
 (defun get-specified-bounds (lower upper)
   (if lower
       (if upper
-          (if (eq upper lower) +glp-fx+ +glp-db+)
-          +glp-lo+)
+          (if (eq upper lower) :fixed :double-bounded)
+          :lower-bound)
       (if upper
-          +glp-up+
-          +glp-fr+)))
+          :upper-bound
+          :free)))
 
 (defun get-bounds (list)
   (mapcar (lambda (constraint)
@@ -97,7 +97,7 @@
                                        (get-specified-bounds lower upper)
                                        (or lower 0)
                                        (or upper 0)))
-                               (list (string var) +glp-fr+ 0 0))))
+                               (list (string var) :free 0 0))))
                        variables)
       :constraints (loop for constraint in constraint-bounds
                       for row from 0
@@ -114,4 +114,4 @@
                                                           col))))
       :objective (list ,@(mapcar #'first
                                  (standardize-equation objective-function)))
-      :direction (if (eq ,direction :maximize) +glp-max+ +glp-min+))))
+      :direction (if (eq ,direction :maximize) :max :min))))
